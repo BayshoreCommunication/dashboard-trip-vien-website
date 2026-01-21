@@ -1,15 +1,16 @@
-import { google } from 'googleapis';
-// import fs from "fs";
 import { API_URL } from '@/config';
 import axios from 'axios';
 
-const oauth2Client = new google.auth.OAuth2(
-  process.env.CLIENT_ID,
-  process.env.CLIENT_SECRET,
-  process.env.REDIRECT_URI
-);
-
 export default async function handler(req, res) {
+  // Dynamic import to avoid __dirname issues on Vercel Edge
+  const { google } = await import('googleapis');
+
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.CLIENT_ID,
+    process.env.CLIENT_SECRET,
+    process.env.REDIRECT_URI
+  );
+
   if (req.method === 'GET') {
     const { code } = req.query;
 
