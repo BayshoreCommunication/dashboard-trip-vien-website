@@ -1,6 +1,18 @@
 import { NextResponse } from "next/server";
 
-export default async function middleware(req) {
+export const config = {
+  matcher: [
+    "/",
+    "/blog/:path*",
+    "/categories",
+    "/media",
+    "/message",
+    "/settings",
+    "/sign-in",
+  ],
+};
+
+export default function middleware(req) {
   const { pathname } = req.nextUrl;
 
   // Check for next-auth session token cookie
@@ -20,21 +32,3 @@ export default async function middleware(req) {
 
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: [
-    "/",
-    "/blog/:path*",
-    "/categories",
-    "/media",
-    "/message",
-    "/settings",
-    "/sign-in",
-  ],
-};
-
-// export { default } from "next-auth/middleware";
-
-// export const config = {
-//   matcher: ["/", "/blog", "/categories", "/media", "/message", "/settings"],
-// };
