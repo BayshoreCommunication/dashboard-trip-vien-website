@@ -1,34 +1,24 @@
 import { NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
 
 export default async function middleware(req) {
   const { pathname } = req.nextUrl;
 
-  try {
-    const token = await getToken({
-      req,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
+  // Check for next-auth session token cookie
+  const sessionToken =
+    req.cookies.get("next-auth.session-token")?.value ||
+    req.cookies.get("__Secure-next-auth.session-token")?.value;
 
-    if (pathname !== "/sign-in") {
-      if (!token) {
-        return NextResponse.redirect(new URL("/sign-in", req.url));
-      }
-    } else {
-      if (token) {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
-    }
-
-    return NextResponse.next();
-  } catch (error) {
-    console.error("Middleware error:", error);
-    // If there's an error, redirect to sign-in
-    if (pathname !== "/sign-in") {
+  if (pathname !== "/sign-in") {
+    if (!sessionToken) {
       return NextResponse.redirect(new URL("/sign-in", req.url));
     }
-    return NextResponse.next();
+  } else {
+    if (sessionToken) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
