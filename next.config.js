@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['googleapis'],
+  experimental: {
+    serverComponentsExternalPackages: ['googleapis'],
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [...(config.externals || []), 'googleapis'];
+    }
+    return config;
+  },
   images: {
     unoptimized: true, // Move this outside the remotePatterns array
     remotePatterns: [
