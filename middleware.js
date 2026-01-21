@@ -4,21 +4,31 @@ import { getToken } from "next-auth/jwt";
 export default async function middleware(req) {
   const { pathname } = req.nextUrl;
 
-  const secret = process.env.NEXTAUTH_SECRET;
+  try {
+    const token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
 
-  const token = await getToken({ req, secret });
+    if (pathname !== "/sign-in") {
+      if (!token) {
+        return NextResponse.redirect(new URL("/sign-in", req.url));
+      }
+    } else {
+      if (token) {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+    }
 
-  if (pathname !== "/sign-in") {
-    if (!token) {
+    return NextResponse.next();
+  } catch (error) {
+    console.error("Middleware error:", error);
+    // If there's an error, redirect to sign-in
+    if (pathname !== "/sign-in") {
       return NextResponse.redirect(new URL("/sign-in", req.url));
     }
-  } else {
-    if (token) {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
+    return NextResponse.next();
   }
-
-  return NextResponse.next();
 }
 
 export const config = {
